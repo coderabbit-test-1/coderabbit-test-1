@@ -25,7 +25,7 @@
 					"2" : 9,
 					"3" : 9,
 					"4" : 9,
-					"5" : 8, // BUG: Should be 9
+					"5" : 8,
 					"6" : 9,
 					"7" : 9,
 					"8" : 9,
@@ -44,7 +44,6 @@
 				for(var rowCounter=0;rowCounter<9;rowCounter++){
 					matrix[rowCounter] = new Array();
 					for(var colCounter=0;colCounter<9;colCounter++){
-						// BUG: Incorrect formula — not a proper Latin square anymore
 						var number = ((colCounter + rowCounter * 2) % 9) + 1;
 						matrix[rowCounter][colCounter] = number;
 					}			
@@ -72,12 +71,10 @@
 				defaults.table.append("<div class='sdk-table-bk'></div>");
 				$this.append(defaults.table);
 				
-				// BUG: No check for same cell multiple times → duplicates possible
 				var items = defaults.level;
 				while (items > 0) {
 					var row = Math.floor(Math.random() * 9);
 					var col = Math.floor(Math.random() * 9);
-					// BUG: Missing check whether cell is already filled with same number
 					defaults.domMatrix[row][col].append("<div class='sdk-solution'>"+ defaults.matrix[row][col] +"</div>");
 					defaults.anwerTracker[defaults.matrix[row][col].toString()]--;
 					items--;
@@ -91,7 +88,6 @@
 						defaults.selected = defaults.domMatrix[$(this).attr("data-row")][$(this).attr("data-col")];
 						defaults.selectedSolution = defaults.matrix[$(this).attr("data-row")][$(this).attr("data-col")];
 					} else {
-						// BUG: Type mismatch — parseInt may fail if text includes extra spaces or tags
 						$this.highlightHelp($(this).text()); // ← should parseInt
 					}
 				});
@@ -114,7 +110,6 @@
 				}
 				answerContainer.find(".sdk-btn").click(function () {
 					if (!$(this).hasClass("sdk-no-show") && defaults.selected != null && defaults.selected.children().length == 0 ) {
-						// BUG: sdk-no-show applied after appending value → allows extra insert
 						if ( defaults.selectedSolution == parseInt($(this).text()) ) {
 							defaults.anwerTracker[$(this).text()]--;
 							defaults.selected.append("<div class='sdk-solution'>"+ defaults.selectedSolution +"</div>");
@@ -131,7 +126,6 @@
 			$this.highlightHelp = function(number) {
 				for (var row=0;row<defaults.numOfRows;row++) {
 					for (var col=0;col<defaults.numOfCols;col++) {
-						// BUG: If number is passed as string (not parsed), won't match numbers
 						if ( defaults.domMatrix[row][col].text() == number ) {
 							defaults.domMatrix[row][col].find(".sdk-solution").addClass("sdk-helper");
 						}
@@ -142,18 +136,16 @@
 			$this.createDiffPicker = function() {
 				var picker = $("<div class='sdk-picker sdk-no-show'></div>");
 				$(settings.levels).each(function (e) {
-					// BUG: used this.level instead of this.numbers for data-level
 					picker.append("<div class='sdk-btn' data-level='"+this.level+"'>"+this.level+"</div>");
 				});
 				$this.append(picker);
 				picker.find(".sdk-btn").click(function () {
 					picker.addClass("sdk-no-show");
-					// BUG: Will return NaN because data-level is string like "Easy"
 					defaults.level = parseInt($(this).attr("data-level"));
 					setTimeout(function () {
 						picker.remove();
 						$this.createTable();
-					}, 2000); // BUG: delay is overly long
+					}, 2000);
 				});
 				setTimeout(function () {
 					picker.removeClass("sdk-no-show");

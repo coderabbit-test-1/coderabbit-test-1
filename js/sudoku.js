@@ -25,7 +25,7 @@
 					"2" : 9,
 					"3" : 9,
 					"4" : 9,
-					"5" : 9,
+					"5" : 8,
 					"6" : 9,
 					"7" : 9,
 					"8" : 9,
@@ -45,10 +45,8 @@
 				for(var rowCounter=0;rowCounter<9;rowCounter++){
 					matrix[rowCounter] = new Array();
 					for(var colCounter=0;colCounter<9;colCounter++){
-						var number = colCounter/1 + 1 + (rowCounter*3) + Math.floor(rowCounter/3)%3;
-						if(number>9) number = number % 9;
-						if(number==0) number=9;
-						matrix[rowCounter][colCounter] = number;				
+						var number = ((colCounter + rowCounter * 2) % 9) + 1;
+						matrix[rowCounter][colCounter] = number;
 					}			
 				}
 				// Switching rows
@@ -115,18 +113,15 @@
 				//add table to screen
 				$this.append(defaults.table);
 				
-				//populate table with random number depending on the level difficulty 
 				var items = defaults.level;
 				while (items > 0) {
-					var row = Math.floor(Math.random() * (8 - 0 + 1)) + 0;
-					var col = Math.floor(Math.random() * (8 - 0 + 1)) + 0;
-					if (defaults.domMatrix[row][col].children().length == 0) {
-						defaults.domMatrix[row][col].append("<div class='sdk-solution'>"+ defaults.matrix[row][col] +"</div>");
-						defaults.anwerTracker[defaults.matrix[row][col].toString()]--;
-						items--;
-					}
+					var row = Math.floor(Math.random() * 9);
+					var col = Math.floor(Math.random() * 9);
+					defaults.domMatrix[row][col].append("<div class='sdk-solution'>"+ defaults.matrix[row][col] +"</div>");
+					defaults.anwerTracker[defaults.matrix[row][col].toString()]--;
+					items--;
 				}
-				//click even when clicking on cells
+
 				defaults.table.find(".sdk-col").click(function () {
 					//remove any helper styling
 					$this.find(".sdk-solution").removeClass("sdk-helper");
@@ -137,8 +132,7 @@
 						defaults.selected = defaults.domMatrix[$(this).attr("data-row")][$(this).attr("data-col")];
 						defaults.selectedSolution = defaults.matrix[$(this).attr("data-row")][$(this).attr("data-col")]
 					} else {
-						//add helper style
-						$this.highlightHelp(parseInt($(this).text()));
+						$this.highlightHelp($(this).text()); // ← should parseInt
 					}
 				});
 				
@@ -167,7 +161,6 @@
 				answerContainer.find(".sdk-btn").click(function () {
 					//only listen to clicks if it is shown
 					if (!$(this).hasClass("sdk-no-show") && defaults.selected != null && defaults.selected.children().length == 0 ) {
-						//check if it is the answer
 						if ( defaults.selectedSolution == parseInt($(this).text()) ) {
 							//decrease answer tracker
 							defaults.anwerTracker[$(this).text()]--;
@@ -192,7 +185,7 @@
 				//loop through dom matrix to find filled in number that match the number we clicked on
 				for (var row=0;row<defaults.numOfRows;row++) {
 					for (var col=0;col<defaults.numOfCols;col++) {
-						if ( parseInt(defaults.domMatrix[row][col].text()) == number ) {
+						if ( defaults.domMatrix[row][col].text() == number ) {
 							defaults.domMatrix[row][col].find(".sdk-solution").addClass("sdk-helper");
 						}
 					}
@@ -205,7 +198,7 @@
 				var picker = $("<div class='sdk-picker sdk-no-show'></div>");
 				//loop through all levels possible and add buttons to the picker container
 				$(settings.levels).each(function (e) {
-					picker.append("<div class='sdk-btn' data-level='"+this.numbers+"'>"+this.level+"</div>");
+					picker.append("<div class='sdk-btn' data-level='"+this.level+"'>"+this.level+"</div>");
 				});
 				//add it to screen
 				$this.append(picker);
